@@ -12,7 +12,7 @@ export const appConfig = {
   defaultCurrency: 'USD',
   defaultCountryCode: 'US',
   appUrl: env.NEXT_PUBLIC_APP_URL,
-  appName: env.NEXT_PUBLIC_APP_NAME || 'Snippy',
+  appName: 'Snippy',
   emails: {
     support: 'support@example.com',
     sender: 'noreply@example.com',

@@ -4,4 +4,7 @@ export const paths = {
     login: '/auth/login',
     register: '/auth/register',
   },
+  snippets: {
+    create: '/snippets/create',
+  },
 } as const;

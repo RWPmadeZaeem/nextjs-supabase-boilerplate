@@ -9,6 +9,7 @@ import PosthogAnalytics from '@/components/posthog/analytics';
 import getMetadata from '@/config/app';
 
 import AppProviders from './providers';
+import { AppLayout } from '@/components/common/app-layout';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -36,7 +37,7 @@ export default function RootLayout({
         <AppProviders>
           <PosthogAnalytics />
           <Toaster richColors />
-          {children}
+          <AppLayout>{children}</AppLayout>
         </AppProviders>
       </body>
     </html>
