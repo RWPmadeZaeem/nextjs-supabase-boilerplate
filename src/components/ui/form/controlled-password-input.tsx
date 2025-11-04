@@ -56,20 +56,20 @@ export const ControlledPasswordInput = <TFormValues extends FieldValues>({
       render={({ field }) => (
         <FormItem
           className={cn(
-            'flex h-fit w-full flex-col gap-1.5',
+            'flex h-fit w-full flex-col space-y-2',
             containerClassName,
           )}
         >
           {label && (
-            <div className='flex items-start gap-1'>
-              <FormLabel className='text-sm font-medium uppercase text-muted-foreground'>
+            <div className='flex items-start gap-1.5'>
+              <FormLabel className='text-sm font-medium text-slate-300'>
                 {label}
               </FormLabel>
 
               {!hideInstructions && (
                 <Tooltip>
                   <TooltipTrigger type='button'>
-                    <Info className='shrink-0 text-[#9AAAC9]' size={16} />
+                    <Info className='shrink-0 text-muted-foreground/70 hover:text-muted-foreground transition-colors' size={16} />
                   </TooltipTrigger>
                   <TooltipContent align='start' alignOffset={10}>
                     <div className='max-w-xs text-xs font-light'>
@@ -92,7 +92,7 @@ export const ControlledPasswordInput = <TFormValues extends FieldValues>({
               <Input
                 {...field}
                 type={showPassword ? 'text' : 'password'}
-                className={cn(className)}
+                className={cn('h-11 bg-slate-800/50 border-slate-700 text-slate-100 placeholder:text-slate-500 transition-all duration-200 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50', className)}
                 placeholder={placeholder}
                 value={field.value as string}
               />

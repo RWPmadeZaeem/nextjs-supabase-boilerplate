@@ -3,19 +3,26 @@ import { Metadata } from 'next';
 import { env } from '@/env';
 
 export const appConfig = {
-  title: 'Next.js App',
+  title: 'Snippy',
   description:
-    'A modern Next.js application with Supabase, React Query, and TypeScript',
-  keywords: 'next.js, supabase, react-query, typescript, boilerplate',
+    'Snippy - Your modern code snippet manager',
+  keywords: 'snippy, code snippets, developer tools, code management',
   logo: '/logo/main.png',
   defaultLocale: 'en-US',
   defaultCurrency: 'USD',
   defaultCountryCode: 'US',
   appUrl: env.NEXT_PUBLIC_APP_URL,
-  appName: env.NEXT_PUBLIC_APP_NAME,
+  appName: env.NEXT_PUBLIC_APP_NAME || 'Snippy',
   emails: {
     support: 'support@example.com',
     sender: 'noreply@example.com',
+  },
+  social: {
+    linkedin: 'https://www.linkedin.com/in/zaeemkhalid070/',
+  },
+  author: {
+    name: 'Zaeem Khalid',
+    linkedin: 'https://www.linkedin.com/in/zaeemkhalid070/',
   },
 } as const;
 
@@ -25,13 +32,11 @@ export default function getMetadata(): Metadata {
     title: { template: `%s | ${appConfig.title}`, default: appConfig.title },
     description: appConfig.description,
     robots: { index: true, follow: true },
-    // icons: {
-    //   icon: '/favicon/favicon.ico',
-    //   shortcut: '/favicon/favicon-16x16.png',
-    //   apple: '/favicon/apple-touch-icon.png',
-    // },
-    // manifest: `/favicon/site.webmanifest`,
-
+    icons: {
+      icon: '/icon.svg',
+      shortcut: '/icon.svg',
+      apple: '/icon.svg',
+    },
     openGraph: {
       url: appConfig.appUrl,
       title: appConfig.title,
