@@ -100,10 +100,10 @@ export const ControlledPasswordInput = <TFormValues extends FieldValues>({
                 type='button'
                 variant='ghost'
                 size='icon'
-                className='absolute right-1 top-0.5 w-8'
+                className='absolute right-1 top-0.5 w-8 text-slate-400 hover:text-slate-300'
                 onClick={togglePasswordVisibility}
               >
-                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                {showPassword ? <EyeOff size={15} className='text-slate-400' /> : <Eye size={15} className='text-slate-400' />}
                 <span className='sr-only'>
                   {showPassword ? 'Hide password' : 'Show password'}
                 </span>
