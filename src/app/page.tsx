@@ -327,7 +327,7 @@ export default function Home() {
                   type='button'
                   variant='outline'
                   onClick={() => setEditingSnippet(null)}
-                  className='border-slate-700 text-slate-300 hover:bg-slate-800'
+                  className='border-slate-700 text-slate-700 hover:bg-slate-800 hover:text-slate-300'
                 >
                   Cancel
                 </Button>
@@ -364,7 +364,7 @@ export default function Home() {
               type='button'
               variant='outline'
               onClick={() => setDeletingSnippet(null)}
-              className='border-slate-700 text-slate-300 hover:bg-slate-800'
+              className='border-slate-700 text-slate-700 hover:bg-slate-800 hover:text-slate-300'
             >
               Cancel
             </Button>
