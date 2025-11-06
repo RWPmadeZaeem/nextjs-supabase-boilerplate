@@ -24,13 +24,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { createSnippetAction } from '@/actions/snippet';
 import { createSnippetSchema, type CreateSnippetInput } from '@/schema/snippet';
 import { onError } from '@/lib/show-error-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { QueryKeys } from '@/constants/query-keys';
 import { toast } from 'sonner';
+import { LanguageSelector } from './language-selector';
+import { CodeEditor } from './code-editor';
 
 export function CreateSnippetForm() {
   const router = useRouter();
@@ -103,25 +104,7 @@ export function CreateSnippetForm() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name='language'
-                render={({ field }) => (
-                  <FormItem className='space-y-2'>
-                    <FormLabel className='text-sm font-medium text-slate-300'>
-                      Language (optional)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='e.g., JavaScript, Python, TypeScript'
-                        className='h-11 bg-slate-800/50 border-slate-700 text-slate-100 placeholder:text-slate-500 transition-all duration-200 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <LanguageSelector name='language' label='Language (optional)' />
               <FormField
                 control={form.control}
                 name='content'
@@ -131,11 +114,11 @@ export function CreateSnippetForm() {
                       Code Content
                     </FormLabel>
                     <FormControl>
-                      <Textarea
-                        rows={16}
+                      <CodeEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                        language={form.watch('language')}
                         placeholder='Paste your code here...'
-                        className='bg-slate-800/50 border-slate-700 text-slate-100 placeholder:text-slate-500 font-mono text-sm transition-all duration-200 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50'
-                        {...field}
                       />
                     </FormControl>
                     <FormMessage />

@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAction } from 'next-safe-action/hooks';
-import { Edit2, Trash2, Code2 } from 'lucide-react';
+import { Code2 } from 'lucide-react';
 
 import { useUser } from '@/hooks/queries/user';
 import { useSnippets } from '@/hooks/queries/snippet';
@@ -16,6 +16,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { SnippetCard } from '@/components/snippets/snippet-card';
+import { SnippetCardSkeleton } from '@/components/snippets/snippet-card-skeleton';
 import {
   Dialog,
   DialogContent,
@@ -42,7 +44,6 @@ import { updateSnippetSchema, type UpdateSnippetInput } from '@/schema/snippet';
 import { useQueryClient } from '@tanstack/react-query';
 import { QueryKeys } from '@/constants/query-keys';
 import { toast } from 'sonner';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
   const router = useRouter();
@@ -151,83 +152,18 @@ export default function Home() {
           {snippetsLoading ? (
           <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
             {Array.from({ length: 6 }).map((_, index) => (
-              <Card
-                key={index}
-                className='rounded-2xl border-slate-800/50 bg-slate-900/80 backdrop-blur-sm shadow-xl shadow-black/50'
-              >
-                <CardHeader>
-                  <Skeleton className='h-6 w-3/4 bg-slate-800' />
-                  <Skeleton className='h-4 w-1/4 mt-2 bg-slate-800' />
-                </CardHeader>
-                <CardContent className='space-y-4'>
-                  <div className='rounded-lg bg-slate-950/50 border border-slate-800 p-3'>
-                    <Skeleton className='h-24 w-full bg-slate-800' />
-                  </div>
-                  <div className='flex items-center justify-between pt-2 border-t border-slate-800'>
-                    <Skeleton className='h-3 w-20 bg-slate-800' />
-                    <div className='flex gap-2'>
-                      <Skeleton className='h-8 w-16 bg-slate-800' />
-                      <Skeleton className='h-8 w-16 bg-slate-800' />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <SnippetCardSkeleton key={index} />
             ))}
           </div>
         ) : snippets && snippets.length > 0 ? (
           <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
             {snippets.map((snippet) => (
-              <Card
+              <SnippetCard
                 key={snippet.id}
-                className='rounded-2xl border-slate-800/50 bg-slate-900/80 backdrop-blur-sm shadow-xl shadow-black/50 transition-all duration-300 hover:shadow-black/70 hover:border-slate-700/50'
-              >
-                <CardHeader>
-                  <div className='flex items-start justify-between'>
-                    <div className='flex-1'>
-                      <CardTitle className='text-lg font-semibold text-slate-100 mb-1'>
-                        {snippet.title}
-                      </CardTitle>
-                      {snippet.language && (
-                        <CardDescription className='text-xs text-emerald-400 font-mono'>
-                          {snippet.language}
-                        </CardDescription>
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className='space-y-4'>
-                  <div className='rounded-lg bg-slate-950/50 border border-slate-800 p-3'>
-                    <pre className='text-xs text-slate-300 font-mono overflow-x-auto whitespace-pre-wrap break-words max-h-32 overflow-y-auto'>
-                      {snippet.content}
-                    </pre>
-                  </div>
-                  <div className='flex items-center justify-between pt-2 border-t border-slate-800'>
-                    <span className='text-xs text-slate-500'>
-                      {new Date(snippet.created_at).toLocaleDateString()}
-                    </span>
-                    <div className='flex gap-2'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleEdit(snippet.id)}
-                        className='h-8 text-slate-400 hover:text-emerald-400 hover:bg-slate-800/50'
-                        iconLeft={Edit2}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleDelete(snippet.id)}
-                        className='h-8 text-slate-400 hover:text-red-400 hover:bg-slate-800/50'
-                        iconLeft={Trash2}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                snippet={snippet}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         ) : (
