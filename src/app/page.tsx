@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAction } from 'next-safe-action/hooks';
-import { Code2 } from 'lucide-react';
+import { Code2, Plus, Search, X } from 'lucide-react';
 
 import { useUser } from '@/hooks/queries/user';
 import { useSnippets } from '@/hooks/queries/snippet';
@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/card';
 import { SnippetCard } from '@/components/snippets/snippet-card';
 import { SnippetCardSkeleton } from '@/components/snippets/snippet-card-skeleton';
+import { CreateSnippetForm } from '@/components/snippets/create-snippet-form';
 import {
   Dialog,
   DialogContent,
@@ -27,43 +28,30 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { updateSnippetAction, deleteSnippetAction } from '@/actions/snippet';
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import { deleteSnippetAction } from '@/actions/snippet';
 import { onError } from '@/lib/show-error-toast';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { updateSnippetSchema, type UpdateSnippetInput } from '@/schema/snippet';
 import { useQueryClient } from '@tanstack/react-query';
 import { QueryKeys } from '@/constants/query-keys';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
 
 export default function Home() {
   const router = useRouter();
   const { data: user, isLoading } = useUser();
   const { data: snippets, isLoading: snippetsLoading } = useSnippets();
   const queryClient = useQueryClient();
-  const [editingSnippet, setEditingSnippet] = useState<string | null>(null);
   const [deletingSnippet, setDeletingSnippet] = useState<string | null>(null);
-
-  const { execute: updateSnippet, status: updateStatus } = useAction(
-    updateSnippetAction,
-    {
-      onSuccess: () => {
-        toast.success('Snippet updated successfully');
-        setEditingSnippet(null);
-        queryClient.invalidateQueries({ queryKey: [QueryKeys.SNIPPETS] });
-      },
-      onError,
-    },
-  );
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [sheetMode, setSheetMode] = useState<'create' | 'edit'>('create');
+  const [editingSnippetId, setEditingSnippetId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
   const { execute: deleteSnippet, status: deleteStatus } = useAction(
     deleteSnippetAction,
@@ -77,35 +65,20 @@ export default function Home() {
     },
   );
 
-  const form = useForm<UpdateSnippetInput>({
-    resolver: zodResolver(updateSnippetSchema),
-    defaultValues: {
-      id: '',
-      title: '',
-      content: '',
-      language: '',
-    },
-  });
-
   useEffect(() => {
     if (!isLoading && !user) {
       router.push(paths.auth.login);
     }
   }, [user, isLoading, router]);
 
+  // Debounce search query
   useEffect(() => {
-    if (editingSnippet && snippets) {
-      const snippet = snippets.find((s) => s.id === editingSnippet);
-      if (snippet) {
-        form.reset({
-          id: snippet.id,
-          title: snippet.title,
-          content: snippet.content,
-          language: snippet.language || '',
-        });
-      }
-    }
-  }, [editingSnippet, snippets, form]);
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   if (isLoading) {
     return (
@@ -120,15 +93,25 @@ export default function Home() {
   }
 
   const handleEdit = (snippetId: string) => {
-    setEditingSnippet(snippetId);
+    setEditingSnippetId(snippetId);
+    setSheetMode('edit');
+    setIsSheetOpen(true);
   };
 
   const handleDelete = (snippetId: string) => {
     setDeletingSnippet(snippetId);
   };
 
-  const onSubmitEdit = (data: UpdateSnippetInput) => {
-    updateSnippet(data);
+  const handleCreate = () => {
+    setEditingSnippetId(null);
+    setSheetMode('create');
+    setIsSheetOpen(true);
+  };
+
+  const handleSheetClose = () => {
+    setIsSheetOpen(false);
+    setEditingSnippetId(null);
+    setSheetMode('create');
   };
 
   const handleConfirmDelete = () => {
@@ -137,170 +120,148 @@ export default function Home() {
     }
   };
 
+  // Filter snippets based on debounced search query
+  const filteredSnippets = snippets?.filter((snippet) => {
+    if (!debouncedSearchQuery.trim()) return true;
+    const query = debouncedSearchQuery.toLowerCase();
+    return (
+      snippet.title.toLowerCase().includes(query) ||
+      snippet.content.toLowerCase().includes(query) ||
+      (snippet.language && snippet.language.toLowerCase().includes(query))
+    );
+  }) || [];
+
+  const hasSnippets = snippets && snippets.length > 0;
+  const hasSearchResults = filteredSnippets.length > 0;
+  const showEmptyState = !snippetsLoading && !hasSnippets;
+  const showNoResults = !snippetsLoading && hasSnippets && debouncedSearchQuery.trim() && !hasSearchResults;
+
   return (
-    <div className='container mx-auto px-4 py-8'>
-        <div className='mb-8'>
-          <h1 className='text-4xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent mb-2'>
-            Your Snippets
-          </h1>
-          <p className='text-slate-400'>
-            Manage and organize your code snippets
-          </p>
+    <div className='container mx-auto px-4 sm:px-6 py-6 sm:py-8'>
+        <div className='mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4'>
+          <div>
+            <h1 className='text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent mb-2'>
+              Your Snippets
+            </h1>
+            <p className='text-sm sm:text-base text-slate-400'>
+              Manage and organize your code snippets
+            </p>
+          </div>
+          <Button
+            onClick={handleCreate}
+            className='bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:shadow-emerald-500/30 shrink-0 w-full sm:w-auto'
+            iconLeft={Plus}
+          >
+            New Snippet
+          </Button>
         </div>
 
-        <div className='min-h-[500px]'>
-          {snippetsLoading ? (
-          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-            {Array.from({ length: 6 }).map((_, index) => (
-              <SnippetCardSkeleton key={index} />
-            ))}
-          </div>
-        ) : snippets && snippets.length > 0 ? (
-          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-            {snippets.map((snippet) => (
-              <SnippetCard
-                key={snippet.id}
-                snippet={snippet}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+        {/* Search Bar */}
+        {hasSnippets && (
+          <div className='mb-6 sm:mb-8'>
+            <div className='relative max-w-md'>
+              <Search className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400' />
+              <Input
+                type='text'
+                placeholder='Search snippets by title, content, or language...'
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className='pl-10 pr-10 h-11 bg-slate-800/50 border-slate-700 text-slate-100 placeholder:text-slate-500 transition-all duration-200 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50'
               />
-            ))}
-          </div>
-        ) : (
-          <Card className='rounded-2xl border-slate-800/50 bg-slate-900/80 backdrop-blur-sm shadow-xl shadow-black/50 min-h-[400px] flex items-center'>
-            <CardContent className='flex flex-col items-center justify-center py-12 w-full'>
-              <Code2 className='h-16 w-16 text-slate-600 mb-4' />
-              <CardTitle className='text-xl font-semibold text-slate-300 mb-2'>
-                No snippets yet
-              </CardTitle>
-              <CardDescription className='text-slate-500 mb-6 text-center'>
-                Get started by creating your first code snippet
-              </CardDescription>
-              <Button
-                onClick={() => router.push(paths.snippets.create)}
-                className='bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:shadow-emerald-500/30'
-              >
-                Create Your First Snippet
-              </Button>
-            </CardContent>
-          </Card>
-          )}
-        </div>
-
-        {/* Edit Dialog */}
-        <Dialog
-        open={editingSnippet !== null}
-        onOpenChange={(open) => !open && setEditingSnippet(null)}
-      >
-        <DialogContent className='sm:max-w-[600px] bg-slate-900 border-slate-800'>
-          <DialogHeader>
-            <DialogTitle className='text-2xl font-semibold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent'>
-              Edit Snippet
-            </DialogTitle>
-            <DialogDescription className='text-slate-400'>
-              Update your code snippet
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmitEdit)}
-              className='space-y-4'
-            >
-              <FormField
-                control={form.control}
-                name='title'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className='text-slate-300'>Title</FormLabel>
-                    <FormControl>
-                      <Input
-                        className='bg-slate-800/50 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='language'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className='text-slate-300'>
-                      Language (optional)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='e.g., JavaScript, Python, TypeScript'
-                        className='bg-slate-800/50 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='content'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className='text-slate-300'>Content</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        rows={12}
-                        className='bg-slate-800/50 border-slate-700 text-slate-100 placeholder:text-slate-500 font-mono text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
+              {searchQuery && (
                 <Button
                   type='button'
-                  variant='outline'
-                  onClick={() => setEditingSnippet(null)}
-                  className='border-slate-700 text-slate-700 hover:bg-slate-800 hover:text-slate-300'
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => setSearchQuery('')}
+                  className='absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 >
-                  Cancel
+                  <X size={16} />
                 </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className='min-h-[400px] sm:min-h-[500px]'>
+          {snippetsLoading ? (
+            <div className='grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3'>
+              {Array.from({ length: 6 }).map((_, index) => (
+                <SnippetCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : showNoResults ? (
+            <Card className='rounded-2xl border-slate-800/50 bg-slate-900/80 backdrop-blur-sm shadow-xl shadow-black/50 min-h-[300px] sm:min-h-[400px] flex items-center'>
+              <CardContent className='flex flex-col items-center justify-center py-8 sm:py-12 w-full px-4'>
+                <Search className='h-12 w-12 sm:h-16 sm:w-16 text-slate-600 mb-4' />
+                <CardTitle className='text-lg sm:text-xl font-semibold text-slate-300 mb-2 text-center'>
+                  No results found
+                </CardTitle>
+                <CardDescription className='text-sm sm:text-base text-slate-500 mb-6 text-center px-4'>
+                  No snippets match your search query &quot;{debouncedSearchQuery}&quot;
+                </CardDescription>
                 <Button
-                  type='submit'
-                  isLoading={updateStatus === 'executing'}
-                  className='bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white'
+                  onClick={() => setSearchQuery('')}
+                  variant='outline'
+                  className='border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-100'
                 >
-                  Update Snippet
+                  Clear search
                 </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+              </CardContent>
+            </Card>
+          ) : showEmptyState ? (
+            <Card className='rounded-2xl border-slate-800/50 bg-slate-900/80 backdrop-blur-sm shadow-xl shadow-black/50 min-h-[300px] sm:min-h-[400px] flex items-center'>
+              <CardContent className='flex flex-col items-center justify-center py-8 sm:py-12 w-full px-4'>
+                <Code2 className='h-12 w-12 sm:h-16 sm:w-16 text-slate-600 mb-4' />
+                <CardTitle className='text-lg sm:text-xl font-semibold text-slate-300 mb-2 text-center'>
+                  No snippets yet
+                </CardTitle>
+                <CardDescription className='text-sm sm:text-base text-slate-500 mb-6 text-center px-4'>
+                  Get started by creating your first code snippet
+                </CardDescription>
+                <Button
+                  onClick={handleCreate}
+                  className='bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:shadow-emerald-500/30 text-sm sm:text-base'
+                >
+                  Create Your First Snippet
+                </Button>
+              </CardContent>
+            </Card>
+          ) : hasSearchResults ? (
+            <div className='grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3'>
+              {filteredSnippets.map((snippet) => (
+                <SnippetCard
+                  key={snippet.id}
+                  snippet={snippet}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deletingSnippet !== null}
         onOpenChange={(open) => !open && setDeletingSnippet(null)}
       >
-        <DialogContent className='sm:max-w-[425px] bg-slate-900 border-slate-800'>
+        <DialogContent className='w-[calc(100%-2rem)] sm:max-w-[425px] bg-slate-900 border-slate-800 mx-4'>
           <DialogHeader>
-            <DialogTitle className='text-xl font-semibold text-slate-100'>
+            <DialogTitle className='text-lg sm:text-xl font-semibold text-slate-100'>
               Delete Snippet
             </DialogTitle>
-            <DialogDescription className='text-slate-400'>
+            <DialogDescription className='text-sm sm:text-base text-slate-400'>
               Are you sure you want to delete this snippet? This action cannot
               be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className='flex-col sm:flex-row gap-2 sm:gap-0'>
             <Button
               type='button'
               variant='outline'
               onClick={() => setDeletingSnippet(null)}
-              className='border-slate-700 text-slate-700 hover:bg-slate-800 hover:text-slate-300'
+              className='border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-slate-100 w-full sm:w-auto'
             >
               Cancel
             </Button>
@@ -309,12 +270,60 @@ export default function Home() {
               variant='destructive'
               onClick={handleConfirmDelete}
               isLoading={deleteStatus === 'executing'}
+              className='w-full sm:w-auto'
             >
               Delete
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Snippet Sheet (Create/Edit) */}
+      <Sheet
+        open={isSheetOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleSheetClose();
+          }
+        }}
+      >
+        <SheetContent side='right' className='w-full sm:max-w-2xl bg-slate-900 border-slate-800 overflow-y-auto p-4 sm:p-6'>
+          <SheetHeader className='pr-8'>
+            <SheetTitle className='text-xl sm:text-2xl font-semibold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent'>
+              {sheetMode === 'edit' ? 'Edit Snippet' : 'Create New Snippet'}
+            </SheetTitle>
+            <SheetDescription className='text-slate-400 text-sm'>
+              {sheetMode === 'edit' 
+                ? 'Update your code snippet' 
+                : 'Save your code snippet for easy access later'}
+            </SheetDescription>
+          </SheetHeader>
+          <div className='mt-4 sm:mt-6'>
+            {isSheetOpen && (
+              <CreateSnippetForm
+                mode={sheetMode}
+                initialValues={
+                  sheetMode === 'edit' && editingSnippetId && snippets
+                    ? (() => {
+                        const snippet = snippets.find((s) => s.id === editingSnippetId);
+                        return snippet
+                          ? {
+                              id: snippet.id,
+                              title: snippet.title,
+                              content: snippet.content,
+                              language: snippet.language || '',
+                            }
+                          : undefined;
+                      })()
+                    : undefined
+                }
+                onSuccess={handleSheetClose}
+                onClose={handleSheetClose}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
       </div>
   );
 }

@@ -1,4 +1,8 @@
-import { Edit2, Trash2 } from 'lucide-react';
+'use client';
+
+import { Edit2, Trash2, Copy, Check } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +22,19 @@ interface SnippetCardProps {
 }
 
 export function SnippetCard({ snippet, onEdit, onDelete }: SnippetCardProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(snippet.content);
+      setCopied(true);
+      toast.success('Code copied to clipboard');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error('Failed to copy code');
+    }
+  };
+
   return (
     <Card className='rounded-2xl border-slate-800/50 bg-slate-900/80 backdrop-blur-sm shadow-xl shadow-black/50 transition-all duration-300 hover:shadow-black/70 hover:border-slate-700/50'>
       <CardHeader>
@@ -49,26 +66,32 @@ export function SnippetCard({ snippet, onEdit, onDelete }: SnippetCardProps) {
         />
         <div className='flex items-center justify-between pt-2 border-t border-slate-800'>
           <span className='text-xs text-slate-500'>
-            {new Date(snippet.created_at).toLocaleDateString()}
+            Created on {new Date(snippet.created_at).toLocaleDateString()}
           </span>
           <div className='flex gap-2'>
             <Button
               variant='ghost'
-              size='sm'
-              onClick={() => onEdit(snippet.id)}
-              className='h-8 text-slate-400 hover:text-emerald-400 hover:bg-slate-800/50'
-              iconLeft={Edit2}
+              size='icon'
+              onClick={handleCopy}
+              className='h-8 w-8 text-slate-400 hover:text-blue-400 hover:bg-slate-800/50'
             >
-              Edit
+              {copied ? <Check size={16} /> : <Copy size={16} />}
             </Button>
             <Button
               variant='ghost'
-              size='sm'
-              onClick={() => onDelete(snippet.id)}
-              className='h-8 text-slate-400 hover:text-red-400 hover:bg-slate-800/50'
-              iconLeft={Trash2}
+              size='icon'
+              onClick={() => onEdit(snippet.id)}
+              className='h-8 w-8 text-slate-400 hover:text-emerald-400 hover:bg-slate-800/50'
             >
-              Delete
+              <Edit2 size={16} />
+            </Button>
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => onDelete(snippet.id)}
+              className='h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-slate-800/50'
+            >
+              <Trash2 size={16} />
             </Button>
           </div>
         </div>

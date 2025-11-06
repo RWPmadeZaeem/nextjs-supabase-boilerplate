@@ -99,7 +99,7 @@ export function CodeViewer({
           )}
         </div>
       )}
-      <div className='relative'>
+      <div className='relative [&_.cm-scroller]:overflow-auto [&_.cm-scroller]:hide-scrollbar'>
         <CodeMirror
           value={value}
           height={height}

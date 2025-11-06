@@ -30,12 +30,12 @@ export function Footer() {
 
   return (
     <footer className='border-t border-slate-800/50 bg-slate-900/50 backdrop-blur-sm'>
-      <div className='container mx-auto px-4 py-6'>
-        <div className='flex flex-col items-center justify-between gap-4 md:flex-row'>
-          <div className='text-sm text-slate-500'>
+      <div className='container mx-auto px-4 sm:px-6 py-4 sm:py-6'>
+        <div className='flex flex-col items-center justify-between gap-3 sm:gap-4 md:flex-row'>
+          <div className='text-xs sm:text-sm text-slate-500 text-center md:text-left'>
             © {currentYear} {appConfig.appName}. All rights reserved.
           </div>
-          <div className='flex items-center gap-4'>
+          <div className='flex items-center gap-3 sm:gap-4'>
             {socialLinks.map((link) => {
               const Icon = link.icon;
               return (
