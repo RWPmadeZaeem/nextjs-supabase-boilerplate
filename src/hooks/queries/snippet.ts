@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase/client';
+
 import { QueryKeys } from '@/constants/query-keys';
-import { snippetSchema, type Snippet } from '@/schema/snippet';
+import { type Snippet,snippetSchema } from '@/schema/snippet';
 
 export const useSnippets = () => {
   return useQuery<Snippet[]>({

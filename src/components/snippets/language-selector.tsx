@@ -1,7 +1,7 @@
 'use client';
 
-import { useFormContext } from 'react-hook-form';
 import { Check } from 'lucide-react';
+import { useFormContext } from 'react-hook-form';
 
 import {
   FormControl,
@@ -17,8 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PROGRAMMING_LANGUAGES } from '@/constants/languages';
+
 import { cn } from '@/lib/utils';
+
+import { PROGRAMMING_LANGUAGES } from '@/constants/languages';
 
 interface LanguageSelectorProps {
   name: string;

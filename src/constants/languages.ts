@@ -1,5 +1,5 @@
-import { SiJavascript, SiPython, SiCplusplus, SiRust, SiGo, SiTypescript, SiHtml5, SiCss3, SiJson, SiMysql, SiMarkdown, SiPhp, SiRuby, SiSwift } from 'react-icons/si';
 import { FaJava } from 'react-icons/fa';
+import { SiCplusplus, SiCss3, SiGo, SiHtml5, SiJavascript, SiJson, SiMarkdown, SiMysql, SiPhp, SiPython, SiRuby, SiRust, SiSwift,SiTypescript } from 'react-icons/si';
 
 export interface Language {
   value: string;

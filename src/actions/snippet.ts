@@ -1,7 +1,8 @@
 'use server';
 
 import { authActionClient } from '@/lib/server/safe-action';
-import { upsertSnippetSchema, deleteSnippetSchema } from '@/schema/snippet';
+
+import { deleteSnippetSchema,upsertSnippetSchema } from '@/schema/snippet';
 
 export const upsertSnippetAction = authActionClient
   .schema(upsertSnippetSchema)

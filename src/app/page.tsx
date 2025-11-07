@@ -1,19 +1,23 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAction } from 'next-safe-action/hooks';
+import { useCallback, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { useSnippets } from '@/hooks/queries/snippet';
-import { SnippetSheet } from '@/components/snippets/snippet-sheet';
+
+import { deleteSnippetAction } from '@/actions/snippet';
+
 import { DeleteSnippetDialog } from '@/components/snippets/delete-snippet-dialog';
-import { SnippetSearchBar } from '@/components/snippets/snippet-search-bar';
 import { SnippetContent } from '@/components/snippets/snippet-content';
 import { SnippetHeader } from '@/components/snippets/snippet-header';
-import { deleteSnippetAction } from '@/actions/snippet';
+import { SnippetSearchBar } from '@/components/snippets/snippet-search-bar';
+import { SnippetSheet } from '@/components/snippets/snippet-sheet';
+
 import { onError } from '@/lib/show-error-toast';
-import { useQueryClient } from '@tanstack/react-query';
+
 import { QueryKeys } from '@/constants/query-keys';
-import { toast } from 'sonner';
 
 export default function Home() {
   const { data: snippets, isLoading: snippetsLoading } = useSnippets();

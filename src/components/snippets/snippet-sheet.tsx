@@ -9,8 +9,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { CreateSnippetForm } from './create-snippet-form';
+
 import { type Snippet } from '@/schema/snippet';
+
+import { CreateSnippetForm } from './create-snippet-form';
 
 interface SnippetSheetProps {
   open: boolean;

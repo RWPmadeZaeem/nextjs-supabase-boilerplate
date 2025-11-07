@@ -1,24 +1,25 @@
 'use client';
 
-import { useMemo } from 'react';
-import type { Extension } from '@codemirror/state';
-import CodeMirror from '@uiw/react-codemirror';
-import { oneDark } from '@codemirror/theme-one-dark';
-import { javascript } from '@codemirror/lang-javascript';
-import { python } from '@codemirror/lang-python';
-import { java } from '@codemirror/lang-java';
 import { cpp } from '@codemirror/lang-cpp';
-import { rust } from '@codemirror/lang-rust';
+import { css } from '@codemirror/lang-css';
 import { go } from '@codemirror/lang-go';
 import { html } from '@codemirror/lang-html';
-import { css } from '@codemirror/lang-css';
+import { java } from '@codemirror/lang-java';
+import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
-import { sql } from '@codemirror/lang-sql';
 import { markdown } from '@codemirror/lang-markdown';
+import { python } from '@codemirror/lang-python';
+import { rust } from '@codemirror/lang-rust';
+import { sql } from '@codemirror/lang-sql';
+import type { Extension } from '@codemirror/state';
+import { oneDark } from '@codemirror/theme-one-dark';
 import { EditorView } from '@codemirror/view';
+import CodeMirror from '@uiw/react-codemirror';
+import { useMemo } from 'react';
+
+import { cn } from '@/lib/utils';
 
 import { getLanguageByValue } from '@/constants/languages';
-import { cn } from '@/lib/utils';
 
 interface CodeViewerProps {
   value: string;

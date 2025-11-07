@@ -1,7 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { Github, Linkedin, Twitter } from 'lucide-react';
+import Link from 'next/link';
+
 import { appConfig } from '@/config/app';
 
 export function Footer() {

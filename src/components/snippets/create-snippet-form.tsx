@@ -1,8 +1,13 @@
 'use client';
 
-import { useAction } from 'next-safe-action/hooks';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAction } from 'next-safe-action/hooks';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import { upsertSnippetAction } from '@/actions/snippet';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,15 +19,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { upsertSnippetAction } from '@/actions/snippet';
-import { upsertSnippetSchema, type UpsertSnippetInput } from '@/schema/snippet';
+
 import { onError } from '@/lib/show-error-toast';
-import { useQueryClient } from '@tanstack/react-query';
+
 import { QueryKeys } from '@/constants/query-keys';
-import { toast } from 'sonner';
-import { LanguageSelector } from './language-selector';
+import { type UpsertSnippetInput,upsertSnippetSchema } from '@/schema/snippet';
+
 import { CodeEditor } from './code-editor';
-import { useEffect } from 'react';
+import { LanguageSelector } from './language-selector';
 
 interface SnippetFormProps {
   mode?: 'create' | 'edit';
@@ -33,10 +37,9 @@ interface SnippetFormProps {
     language?: string;
   };
   onSuccess?: () => void;
-  onClose?: () => void;
 }
 
-export function CreateSnippetForm({ mode = 'create', initialValues, onSuccess, onClose }: SnippetFormProps) {
+export function CreateSnippetForm({ mode = 'create', initialValues, onSuccess }: SnippetFormProps) {
   const queryClient = useQueryClient();
   const isEditMode = mode === 'edit';
 

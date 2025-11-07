@@ -1,6 +1,6 @@
 'use client';
 
-import { Edit2, Trash2, Copy, Check } from 'lucide-react';
+import { Check,Copy, Edit2, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -12,7 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+
 import { type Snippet } from '@/schema/snippet';
+
 import { CodeViewer } from './code-viewer';
 
 interface SnippetCardProps {
@@ -30,7 +32,7 @@ export function SnippetCard({ snippet, onEdit, onDelete }: SnippetCardProps) {
       setCopied(true);
       toast.success('Code copied to clipboard');
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy code');
     }
   };

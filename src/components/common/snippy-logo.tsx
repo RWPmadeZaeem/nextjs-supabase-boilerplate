@@ -1,6 +1,7 @@
 'use client';
 
 import { Code2 } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
 type SnippyLogoProps = {

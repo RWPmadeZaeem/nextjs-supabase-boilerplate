@@ -1,5 +1,6 @@
-import { SnippetCard } from './snippet-card';
 import { type Snippet } from '@/schema/snippet';
+
+import { SnippetCard } from './snippet-card';
 
 interface SnippetGridProps {
   snippets: Snippet[];

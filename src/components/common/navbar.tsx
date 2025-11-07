@@ -1,15 +1,17 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAction } from 'next-safe-action/hooks';
 import { LogOut } from 'lucide-react';
+import Link from 'next/link';
+import { useAction } from 'next-safe-action/hooks';
+
+import { useUser } from '@/hooks/queries/user';
+
+import { logoutAction } from '@/actions/auth';
 
 import { SnippyLogo } from '@/components/common/snippy-logo';
 import { Button } from '@/components/ui/button';
-import { logoutAction } from '@/actions/auth';
+
 import { paths } from '@/constants/paths';
-import { useUser } from '@/hooks/queries/user';
 
 export function Navbar() {
   

@@ -4,12 +4,12 @@ import { Toaster } from 'sonner';
 
 import './globals.css';
 
+import { ConditionalLayout } from '@/components/common/conditional-layout';
 import PosthogAnalytics from '@/components/posthog/analytics';
 
 import getMetadata from '@/config/app';
 
 import AppProviders from './providers';
-import { ConditionalLayout } from '@/components/common/conditional-layout';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

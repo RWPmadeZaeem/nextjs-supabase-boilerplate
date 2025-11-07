@@ -1,8 +1,9 @@
 import { type Snippet } from '@/schema/snippet';
-import { SnippetLoadingState } from './snippet-loading-state';
+
 import { SnippetEmptyState } from './snippet-empty-state';
-import { SnippetNoResultsState } from './snippet-no-results-state';
 import { SnippetGrid } from './snippet-grid';
+import { SnippetLoadingState } from './snippet-loading-state';
+import { SnippetNoResultsState } from './snippet-no-results-state';
 
 interface SnippetContentProps {
   isLoading: boolean;

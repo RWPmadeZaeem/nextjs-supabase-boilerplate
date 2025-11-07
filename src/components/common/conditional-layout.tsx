@@ -1,8 +1,9 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Navbar } from '@/components/common/navbar';
+
 import { Footer } from '@/components/common/footer';
+import { Navbar } from '@/components/common/navbar';
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

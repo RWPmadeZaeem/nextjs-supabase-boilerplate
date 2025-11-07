@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useForm } from 'react-hook-form';
+
 import { signupAction } from '@/actions/auth';
+
 import { SnippyLogo } from '@/components/common/snippy-logo';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,11 +26,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { ControlledPasswordInput } from '@/components/ui/form/controlled-password-input';
+import { Input } from '@/components/ui/input';
+
 import { onError } from '@/lib/show-error-toast';
-import { signupSchema, type SignupInput } from '@/schema/auth';
+
 import { paths } from '@/constants/paths';
+import { type SignupInput,signupSchema } from '@/schema/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
