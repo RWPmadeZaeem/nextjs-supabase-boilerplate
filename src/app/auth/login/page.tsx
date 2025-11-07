@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { loginAction } from '@/actions/auth';
 import { SnippyLogo } from '@/components/common/snippy-logo';
@@ -30,11 +29,9 @@ import { ControlledPasswordInput } from '@/components/ui/form/controlled-passwor
 import { onError } from '@/lib/show-error-toast';
 import { loginSchema, type LoginInput } from '@/schema/auth';
 import { paths } from '@/constants/paths';
-import { useUser } from '@/hooks/queries/user';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { data: user, isLoading: isUserLoading } = useUser();
 
   const { execute, status } = useAction(loginAction, {
     onSuccess: ({ data }) => {
@@ -54,28 +51,9 @@ export default function LoginPage() {
     },
   });
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!isUserLoading && user) {
-      router.push('/');
-    }
-  }, [user, isUserLoading, router]);
-
   const onSubmit = (data: LoginInput) => {
     execute(data);
   };
-
-  if (isUserLoading) {
-    return (
-      <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950'>
-        <div className='text-muted-foreground'>Loading...</div>
-      </div>
-    );
-  }
-
-  if (user) {
-    return null; // Will redirect
-  }
 
   return (
     <div className='relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4 sm:p-6'>

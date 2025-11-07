@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import type { Extension } from '@codemirror/state';
 import CodeMirror from '@uiw/react-codemirror';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { javascript } from '@codemirror/lang-javascript';
@@ -28,7 +29,7 @@ interface CodeViewerProps {
   windowTitle?: string;
 }
 
-const languageExtensions: Record<string, any> = {
+const languageExtensions: Record<string, Extension> = {
   javascript: javascript({ jsx: true }),
   typescript: javascript({ jsx: true, typescript: true }),
   python: python(),

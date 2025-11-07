@@ -12,7 +12,7 @@ import { paths } from '@/constants/paths';
 import { useUser } from '@/hooks/queries/user';
 
 export function Navbar() {
-  const router = useRouter();
+  
   const { data: user } = useUser();
   const { execute: logout, status: logoutStatus } = useAction(logoutAction);
 

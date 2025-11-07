@@ -1,5 +1,6 @@
 'use client';
 
+import type { Extension } from '@codemirror/state';
 import CodeMirror from '@uiw/react-codemirror';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { javascript } from '@codemirror/lang-javascript';
@@ -25,7 +26,7 @@ interface CodeEditorProps {
   className?: string;
 }
 
-const languageExtensions: Record<string, any> = {
+const languageExtensions: Record<string, Extension> = {
   javascript: javascript({ jsx: true }),
   typescript: javascript({ jsx: true, typescript: true }),
   python: python(),

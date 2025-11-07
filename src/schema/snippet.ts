@@ -1,13 +1,7 @@
 import { z } from 'zod';
 
-export const createSnippetSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200, 'Title is too long'),
-  content: z.string().min(1, 'Content is required'),
-  language: z.string().optional(),
-});
-
-export const updateSnippetSchema = z.object({
-  id: z.string(),
+export const upsertSnippetSchema = z.object({
+  id: z.string().optional(),
   title: z.string().min(1, 'Title is required').max(200, 'Title is too long'),
   content: z.string().min(1, 'Content is required'),
   language: z.string().optional(),
@@ -17,8 +11,7 @@ export const deleteSnippetSchema = z.object({
   id: z.string(),
 });
 
-export type CreateSnippetInput = z.infer<typeof createSnippetSchema>;
-export type UpdateSnippetInput = z.infer<typeof updateSnippetSchema>;
+export type UpsertSnippetInput = z.infer<typeof upsertSnippetSchema>;
 export type DeleteSnippetInput = z.infer<typeof deleteSnippetSchema>;
 
 export const snippetSchema = z.object({

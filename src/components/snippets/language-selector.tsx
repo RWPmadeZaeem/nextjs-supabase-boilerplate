@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PROGRAMMING_LANGUAGES, type Language } from '@/constants/languages';
+import { PROGRAMMING_LANGUAGES } from '@/constants/languages';
 import { cn } from '@/lib/utils';
 
 interface LanguageSelectorProps {

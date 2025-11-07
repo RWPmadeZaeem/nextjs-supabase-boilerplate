@@ -14,8 +14,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { createSnippetAction, updateSnippetAction } from '@/actions/snippet';
-import { createSnippetSchema, updateSnippetSchema, type CreateSnippetInput, type UpdateSnippetInput } from '@/schema/snippet';
+import { upsertSnippetAction } from '@/actions/snippet';
+import { upsertSnippetSchema, type UpsertSnippetInput } from '@/schema/snippet';
 import { onError } from '@/lib/show-error-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { QueryKeys } from '@/constants/query-keys';
@@ -40,9 +40,13 @@ export function CreateSnippetForm({ mode = 'create', initialValues, onSuccess, o
   const queryClient = useQueryClient();
   const isEditMode = mode === 'edit';
 
-  const { execute: createSnippet, status: createStatus } = useAction(createSnippetAction, {
-    onSuccess: () => {
-      toast.success('Snippet created successfully');
+  const { execute: upsertSnippet, isPending } = useAction(upsertSnippetAction, {
+    onSuccess: ({ data }) => {
+      if (data?.isUpdate) {
+        toast.success('Snippet updated successfully');
+      } else {
+        toast.success('Snippet created successfully');
+      }
       queryClient.invalidateQueries({ queryKey: [QueryKeys.SNIPPETS] });
       form.reset();
       onSuccess?.();
@@ -50,30 +54,31 @@ export function CreateSnippetForm({ mode = 'create', initialValues, onSuccess, o
     onError,
   });
 
-  const { execute: updateSnippet, status: updateStatus } = useAction(updateSnippetAction, {
-    onSuccess: () => {
-      toast.success('Snippet updated successfully');
-      queryClient.invalidateQueries({ queryKey: [QueryKeys.SNIPPETS] });
-      form.reset();
-      onSuccess?.();
-    },
-    onError,
-  });
-
-  const form = useForm<CreateSnippetInput | UpdateSnippetInput>({
-    resolver: zodResolver(isEditMode ? updateSnippetSchema : createSnippetSchema),
-    defaultValues: initialValues || {
-      title: '',
-      content: '',
-      language: '',
-      ...(isEditMode && { id: '' }),
-    },
+  const form = useForm<UpsertSnippetInput>({
+    resolver: zodResolver(upsertSnippetSchema),
+    defaultValues: initialValues
+      ? {
+          id: initialValues.id,
+          title: initialValues.title || '',
+          content: initialValues.content || '',
+          language: initialValues.language || '',
+        }
+      : {
+          title: '',
+          content: '',
+          language: '',
+        },
   });
 
   // Reset form with initial values when they change
   useEffect(() => {
     if (initialValues) {
-      form.reset(initialValues);
+      form.reset({
+        id: initialValues.id,
+        title: initialValues.title || '',
+        content: initialValues.content || '',
+        language: initialValues.language || '',
+      });
     }
   }, [initialValues, form]);
 
@@ -84,15 +89,12 @@ export function CreateSnippetForm({ mode = 'create', initialValues, onSuccess, o
     };
   }, [form]);
 
-  const onSubmit = (data: CreateSnippetInput | UpdateSnippetInput) => {
-    if (isEditMode) {
-      updateSnippet(data as UpdateSnippetInput);
-    } else {
-      createSnippet(data as CreateSnippetInput);
-    }
+  const onSubmit = (data: UpsertSnippetInput) => {
+    upsertSnippet({
+      ...data,
+      id: isEditMode ? initialValues?.id : undefined,
+    });
   };
-
-  const status = isEditMode ? updateStatus : createStatus;
 
   return (
     <Form {...form}>
@@ -148,13 +150,17 @@ export function CreateSnippetForm({ mode = 'create', initialValues, onSuccess, o
           </Button>
           <Button
             type='submit'
-            isLoading={status === 'executing'}
-            disabled={status === 'executing'}
+            isLoading={isPending}
+            disabled={isPending}
             className='flex-1 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:shadow-emerald-500/30 w-full sm:w-auto'
           >
-            {status === 'executing' 
-              ? (isEditMode ? 'Updating...' : 'Creating...') 
-              : (isEditMode ? 'Update Snippet' : 'Create Snippet')}
+            {isPending
+              ? isEditMode
+                ? 'Updating...'
+                : 'Creating...'
+              : isEditMode
+                ? 'Update Snippet'
+                : 'Create Snippet'}
           </Button>
         </div>
       </form>
